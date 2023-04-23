@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<title>{% block title %}{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+<nav>
+    <h1>navigation</h1>
+    <ul>
+        <li>link 1</li>
+        <li>link 2</li>
+        <li>link 3</li>
+    </ul>
+</nav>
+<section class="content">
+    <header>
+        base header:
+        {% block header %}{% endblock %}
+    </header>
+
+    <!-- ERROR MESSAGES -->
+    {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+    {% endfor %}
+    <!-- END ERROR MESSAGES -->
+
+
+
+    <!-- MAIN CONTENT -->
+
+    <div class="block container">
+        <div class="block left-block">
+
+            {% block left %}
+            {% endblock %}
+
+        </div>
+
+        <div class="block right-block">
+
+            {% block right %}
+            {% endblock %}
+
+        </div>
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <!-- END MAIN CONTENT -->
+</section>

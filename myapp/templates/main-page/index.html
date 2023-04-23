@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %} header (from index) {% endblock %}</h1>
+{% endblock %}
+
+
+{% block left %}
+
+current path: {{ current_path }}
+
+<br>
+
+<a href="{{ url_for('file_explorer.explore') }}?path={{ '..' }}&current_path={{ current_path }}">back</a>
+
+<br>
+
+directories:
+<ul>
+    {% for directory in directories %}
+
+    <li><a href="{{ url_for('file_explorer.explore') }}?path={{ directory }}&current_path={{ current_path }}">{{
+            directory }}</a></li>
+
+    {% endfor %}
+</ul>
+
+files:
+<ul>
+    {% for file in files %}
+
+    <li>{{ file }}</li>
+
+    {% endfor %}
+</ul>
+
+{% endblock %}
+
+
+{% block right %}
+right content
+{% endblock %}
+
+
+{% block content %}
+content block
+
+info passed in:
+{{ info }}
+{% endblock %}
