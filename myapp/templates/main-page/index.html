@@ -6,33 +6,90 @@
 
 
 {% block left %}
+<script>
+    function display_directories(current_path, requested_dir) {
+
+        current_path = String(current_path)
+        requested_dir = String(requested_dir)
+
+        console.log('sending AJAX request. current_path: ' + current_path + ' requested_dir: ' + requested_dir)
+
+
+        // send AJAX request to server with the requested information
+        $.ajax({
+            url: "{{ url_for('file_explorer.get_data') }}",
+            type: 'POST',
+            data: JSON.stringify({ 'current_path': current_path, 'requested_dir': requested_dir }),
+            contentType: "application/json",
+            dataType: "json",
+        }).done(function (response) {
+            console.log('successfully retrieved data: ' + response);
+
+            current_path = response.current_path
+            directories_buttons = ""
+
+            console.log('directories: ' + response.directories)
+            $('#directory-buttons').html('')
+            // Add back button
+            let button = $('<button>').addClass('directory-btn').attr('current_path', current_path).attr('directory', '..').text('..');
+            $('#directory-buttons').append(button)
+            for (let i = 0; i < response.directories.length; i++) {
+                directory = response.directories[i];
+                console.log('creating button for directory: ' + directory);
+                //directories_buttons += "<button class='directory-btn' directory=" + directory + " current_path=" + current_path + ">" + directory + "</button>"
+                let button = $('<button>').addClass('directory-btn').attr('current_path', current_path).attr('directory', directory).text(directory);
+                $('#directory-buttons').append(button)
+            }
+
+            $("#file-list").html('')
+            for (let i = 0; i < response.files.length; i++) {
+                file = response.files[i];
+                console.log('creating file item for file: ' + file);
+                let list_item = $('<li>').addClass('file-list-item').text(file);
+                $('#file-list').append(list_item)
+            }
+
+        }).fail(function () {
+            console.log('failed to retrieve data from server')
+        }).always(function () {
+            console.log('always run')
+        });
+
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        //  Add click event listener to the update button
+        $('#directory-buttons').on('click', 'button', function () {
+            // Get the directory from the clicked button
+            console.log('button pressed!');
+            let requested_dir = $(this).attr('directory');
+            let current_path = $(this).attr('current_path')
+            console.log('button directory: ' + requested_dir);
+            console.log('button current path: ' + current_path);
+
+            display_directories(current_path, requested_dir)
+
+        });
+    });
+</script>
 
 current path: {{ current_path }}
 
 <br>
 
-<a href="{{ url_for('file_explorer.explore') }}?path={{ '..' }}&current_path={{ current_path }}">back</a>
+<script>
+    display_directories()
+</script>
 
-<br>
+<div id="directory-buttons">
+    directory buttons div
+</div>
+<div>
+    <ul id="file-list">
 
-directories:
-<ul>
-    {% for directory in directories %}
-
-    <li><a href="{{ url_for('file_explorer.explore') }}?path={{ directory }}&current_path={{ current_path }}">{{
-            directory }}</a></li>
-
-    {% endfor %}
-</ul>
-
-files:
-<ul>
-    {% for file in files %}
-
-    <li>{{ file }}</li>
-
-    {% endfor %}
-</ul>
+    </ul>
+</div>
 
 {% endblock %}
 
