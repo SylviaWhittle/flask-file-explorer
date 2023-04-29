@@ -1,9 +1,10 @@
 import os
-from flask import Blueprint, render_template, url_for, request, jsonify, Response
+from flask import Blueprint, render_template, url_for, request, jsonify, Response, make_response
 from pathlib import Path
 from pprint import pprint
 import json
 import time
+import base64
 
 bp = Blueprint('file_explorer', __name__)
 
@@ -63,7 +64,6 @@ def list_directory(requested_dir: str, current_path: str):
     print('----                 ----')
 
     return str(current_path.resolve()), files, yaml_files, directories
-
 
 
 @bp.route('/', methods=['POST', 'GET'])
@@ -154,3 +154,19 @@ def run():
     # check 
 
     pass
+
+@bp.route('/render_images', methods=['POST'])
+def render_images():
+
+    output_path = request.form['output_path']
+    output_path = Path(output_path)
+
+    images = []
+
+    for png_file in output_path.glob("./*.png"):
+        print(f'encoding image: {png_file}')
+        with open(png_file, "rb") as f:
+            image_binary = f.read()
+        images.append(base64.b64encode(image_binary).decode('utf-8'))
+
+    return jsonify(images)

@@ -26,6 +26,8 @@
 
             current_path = response.current_path
 
+            set_current_path(current_path);
+
             console.log('directories: ' + response.directories)
             $('#directory-buttons').html('')
             // Add back button
@@ -46,7 +48,7 @@
                 $('#file-list').append(list_item)
             }
 
-            $("#yaml-list").html('')
+            $("#yaml-buttons").html('')
             for (let i = 0; i < response.yaml_files.length; i++) {
                 yaml_file = response.yaml_files[i];
                 console.log('creating yaml file item and button for file: ' + yaml_file);
@@ -64,6 +66,16 @@
 
     }
 
+    function set_input_directory(current_path) {
+        current_path = String(current_path);
+        $("#current-input-directory").text(current_path);
+    }
+
+    function set_output_directory(current_path) {
+        current_path = String(current_path);
+        $("#current-output-directory").text(current_path);
+    }
+
     function set_config_file(current_path, yaml_file) {
         current_path = String(current_path);
         yaml_file = String(yaml_file);
@@ -76,7 +88,6 @@
     function load_config_file() {
         config_file_path = $("#current-config-file").text()
         console.log("loading config file: " + config_file_path)
-
 
         // send AJAX request to server with the requested information
         $.ajax({
@@ -117,10 +128,46 @@
         });
     }
 
-</script>
-<script>
+    // Render images in output directory
+    setInterval(function () {
+        output_path = get_output_path();
+        $("#images").html("");
+        if (output_path) {
+            console.log('sending render images request to server')
+            $.ajax({
+                url: "{{ url_for('file_explorer.render_images') }}",
+                type: 'POST',
+                data: { 'output_path': get_output_path() },
+            }).done(function (response) {
+                console.log('successfully received response from render images request');
+
+                for (let i = 0; i < response.length; i++) {
+                    let img = $('<img>');
+                    img.attr('src', 'data:img/jpeg;base64,' + response[i]);
+                    $("#images").append(img);
+                }
+
+            }).fail(function () {
+                console.log('failed to get response from render images request')
+            });
+        }
+    }, 2000);
+
+    function get_current_path() {
+        return $("#current-path").text();
+    }
+    function set_current_path(current_path) {
+        return $("#current-path").text(current_path);
+    }
+    function get_output_path() {
+        return $("#current-output-path").text()
+    }
+    function get_input_path() {
+        return $("#current-input-path").text()
+    }
+
     $(document).ready(function () {
-        //  Add click event listener to the update button
+        //  Add click event listener to the directory button
         $('#directory-buttons').on('click', 'button', function () {
             // Get the directory from the clicked button
             console.log('button pressed!');
@@ -132,11 +179,8 @@
             display_directories(current_path, requested_dir);
 
         });
-    });
-</script>
-<script>
-    $(document).ready(function () {
-        // Add click event listener to the update button
+
+        // Add click event listener to the yaml button
         $('#yaml-buttons').on('click', 'button', function () {
             // Get the directory from the clicked button
             console.log('yaml button pressed!');
@@ -146,12 +190,33 @@
             console.log('yaml button current path: ' + current_path);
             set_config_file(current_path, requested_yaml);
         });
+
+        // Add click event listener to input / output directory buttons
+        $('#set-input-directory-btn').click(function () {
+            current_path = get_current_path();
+            $("#current-input-path").text(current_path);
+        });
+        $('#set-output-directory-btn').click(function () {
+            current_path = get_current_path();
+            $("#current-output-path").text(current_path);
+        })
+
+
+
     });
+
 </script>
+
 
 <h3>file explorer</h3>
 
-current path: {{ current_path }}
+current path:
+<div id="current-path"></div>
+
+<br>
+
+<button id="set-input-directory-btn">Set as input directory</button>
+<button id="set-output-directory-btn">Set as output directory</button>
 
 <br>
 
@@ -175,9 +240,15 @@ current path: {{ current_path }}
 
 {% endblock %}
 
-
-
 {% block right %}
+
+<h3>input path</h3>
+path:
+<div id="current-input-path"></div>
+
+<h3>output path</h3>
+path:
+<div id="current-output-path"></div>
 
 <h3>config editor</h3>
 
@@ -186,11 +257,14 @@ current config file:
 
 <textarea id="text-area"></textarea>
 
-<script>
-    let config_file_path = $("#current-config-file").text()
+<br>
 
+<button id="run-topostats">run topostats</button>
+
+<script>
     const textArea = document.getElementById('text-area');
     textArea.addEventListener('input', function () {
+        let config_file_path = $("#current-config-file").text();
         if (config_file_path) {
             const updatedConfig = textArea.value;
             // send updatedConfig to Flask server
@@ -200,12 +274,8 @@ current config file:
     });
 </script>
 
+<h3>output images:</h3>
+<div id="images"></div>
 
-{% endblock %}
 
-{% block content %}
-content block
-
-info passed in:
-{{ info }}
 {% endblock %}
