@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, render_template, url_for, request, jsonify
+from flask import Blueprint, render_template, url_for, request, jsonify, Response
 from pathlib import Path
 from pprint import pprint
 import json
@@ -46,6 +46,7 @@ def list_directory(requested_dir: str, current_path: str):
     # find files and directories in current path
     directories = []
     files = []
+    yaml_files = []
 
     for entry in current_path.glob('./*'):
         if entry.is_dir():
@@ -53,11 +54,15 @@ def list_directory(requested_dir: str, current_path: str):
             directories.append(str(entry.relative_to(current_path)))
         else:
             print(f'is file: {str(entry)}')
-            files.append(str(entry.relative_to(current_path)))
+            # Check if file is a YAML file
+            if entry.suffix == '.yaml' or entry.suffix == '.yml':
+                yaml_files.append(str(entry.relative_to(current_path)))
+            else:
+                files.append(str(entry.relative_to(current_path)))
 
     print('----                 ----')
 
-    return str(current_path.resolve()), files, directories
+    return str(current_path.resolve()), files, yaml_files, directories
 
 
 
@@ -70,9 +75,9 @@ def explore():
     print(f'requested_dir={requested_dir}')
     print(f'current_path={current_path}')
 
-    current_path, files, directories = list_directory(requested_dir=requested_dir, current_path=current_path)
+    current_path, files, yaml_files, directories = list_directory(requested_dir=requested_dir, current_path=current_path)
 
-    return render_template('main-page/index.html', current_path=current_path, files=files, directories=directories)
+    return render_template('main-page/index.html', current_path=current_path, files=files, yaml_files=yaml_files, directories=directories)
 
 
 @bp.route('/get-data', methods=['POST', 'GET'])
@@ -86,11 +91,12 @@ def get_data():
     current_path = str(request_json['current_path'])
     print(f'input current_path: {current_path}')
     
-    current_path, files, directories = list_directory(requested_dir=requested_dir, current_path=current_path)
+    current_path, files, yaml_files, directories = list_directory(requested_dir=requested_dir, current_path=current_path)
 
     data = {
         "current_path": current_path,
         "files": files,
+        "yaml_files": yaml_files,
         "directories": directories
     }
 
@@ -102,34 +108,43 @@ def get_data():
 @bp.route('/load-config', methods=['POST', 'GET'])
 def load_config():
 
+    print('LOAD CONFIG TRIGGERED')
+
     # get path to config
+    config_path = request.form['config_file_path']
+    print(f'(loading) config file path: {config_path}')
+    config_path = Path(config_path)
+    print(f'(loading) config file path Path-ed: {config_path}')
 
     # verify config path
-
-    # generate config (if needed)
+    if not config_path.exists:
+        return Response("File does not exist", status=400)
 
     # open config file
+    with open(config_path, 'r') as f:
+        config = f.read()
+    print(f'(loading) config loaded: {config}')
 
     # return config file contents
-
-    pass
+    return config
 
 @bp.route('/update-config', methods=['POST'])
 def update_config():
 
-    # get updated config
+    # get updated config and path
+    config_path = request.form['config_file_path']
+    print(f'(updating) config file path: {config_path}')
+    config_path = Path(config_path)
+    print(f'(updating) config file path Path-ed: {config_path}')
+
     config = request.form['config']
-    print(f'received config: {config}')
+    print(f'(updating) received config: {config}')
 
-    # open config file
+    # open config file and update it
+    with open(config_path, 'w') as f:
+        f.write(config)
 
-    # clear config file
-
-    # add updated config
-
-    # save config file
-
-    return f'received config: {config}'
+    return 'successfully saved config'
 
 @bp.route('/run', methods=['POST', 'GET'])
 def run():

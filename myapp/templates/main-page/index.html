@@ -12,7 +12,7 @@
         current_path = String(current_path)
         requested_dir = String(requested_dir)
 
-        console.log('sending AJAX request. current_path: ' + current_path + ' requested_dir: ' + requested_dir)
+        console.log('sending AJAX request. current_path: ' + current_path + ' requested_dir: ' + requested_dir);
 
         // send AJAX request to server with the requested information
         $.ajax({
@@ -25,7 +25,6 @@
             console.log('successfully retrieved data: ' + response);
 
             current_path = response.current_path
-            directories_buttons = ""
 
             console.log('directories: ' + response.directories)
             $('#directory-buttons').html('')
@@ -47,6 +46,16 @@
                 $('#file-list').append(list_item)
             }
 
+            $("#yaml-list").html('')
+            for (let i = 0; i < response.yaml_files.length; i++) {
+                yaml_file = response.yaml_files[i];
+                console.log('creating yaml file item and button for file: ' + yaml_file);
+                let list_item = $('<li>').addClass('yaml-list-item');
+                list_item.append(document.createTextNode(yaml_file))
+                list_item.append($('<button>').addClass('yaml-btn').attr('current_path', current_path).attr('yaml_file', yaml_file).text('Set as config file'));
+                $('#yaml-buttons').append(list_item)
+            }
+
         }).fail(function () {
             console.log('failed to retrieve data from server')
         }).always(function () {
@@ -54,6 +63,60 @@
         });
 
     }
+
+    function set_config_file(current_path, yaml_file) {
+        current_path = String(current_path);
+        yaml_file = String(yaml_file);
+        config_full_path = String(current_path + "/" + yaml_file);
+        console.log("setting config file to: " + config_full_path);
+        $('#current-config-file').text(config_full_path)
+        load_config_file()
+    }
+
+    function load_config_file() {
+        config_file_path = $("#current-config-file").text()
+        console.log("loading config file: " + config_file_path)
+
+
+        // send AJAX request to server with the requested information
+        $.ajax({
+            url: "{{ url_for('file_explorer.load_config') }}",
+            type: 'POST',
+            data: { 'config_file_path': config_file_path },
+        }).done(function (response) {
+            console.log('successfully retrieved config file data: ' + response);
+            config = response
+            console.log('config: ' + config)
+
+            // Load the config into the text edit field
+            $('#text-area').val(config);
+
+        }).fail(function () {
+            console.log('failed to retrieve config from server')
+        }).always(function () {
+            console.log('config retrieve always run')
+        });
+
+    }
+
+    function update_config_file(config) {
+        config_file_path = $("#current-config-file").text()
+        console.log("updating config file: " + config_file_path)
+
+        // send AJAX request to server with the requested information
+        $.ajax({
+            url: "{{ url_for('file_explorer.update_config') }}",
+            type: 'POST',
+            data: { 'config_file_path': config_file_path, 'config': config },
+        }).done(function (response) {
+            console.log('successfully updated config file data: ' + response);
+        }).fail(function () {
+            console.log('failed to get server to update config')
+        }).always(function () {
+            console.log('config update always run')
+        });
+    }
+
 </script>
 <script>
     $(document).ready(function () {
@@ -62,12 +125,26 @@
             // Get the directory from the clicked button
             console.log('button pressed!');
             let requested_dir = $(this).attr('directory');
-            let current_path = $(this).attr('current_path')
+            let current_path = $(this).attr('current_path');
             console.log('button directory: ' + requested_dir);
             console.log('button current path: ' + current_path);
 
-            display_directories(current_path, requested_dir)
+            display_directories(current_path, requested_dir);
 
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        // Add click event listener to the update button
+        $('#yaml-buttons').on('click', 'button', function () {
+            // Get the directory from the clicked button
+            console.log('yaml button pressed!');
+            let requested_yaml = $(this).attr('yaml_file');
+            let current_path = $(this).attr('current_path');
+            console.log('yaml button yaml_file: ' + requested_yaml);
+            console.log('yaml button current path: ' + current_path);
+            set_config_file(current_path, requested_yaml);
         });
     });
 </script>
@@ -90,115 +167,39 @@ current path: {{ current_path }}
 
     </ul>
 </div>
+<div>
+    <ul id="yaml-buttons">
+
+    </ul>
+</div>
 
 {% endblock %}
+
+
 
 {% block right %}
 
 <h3>config editor</h3>
 
+current config file:
+<div id="current-config-file"></div>
 
-<input type="file" id="file-input" onchange="loadFile(event)">
 <textarea id="text-area"></textarea>
 
 <script>
-    let LoadedFile = null
-
-    function loadFile(event) {
-        const file = event.target.files[0];
-        LoadedFile = file
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            document.getElementById('text-area').value = e.target.result;
-        };
-        reader.readAsText(file);
-    }
+    let config_file_path = $("#current-config-file").text()
 
     const textArea = document.getElementById('text-area');
     textArea.addEventListener('input', function () {
-        if (LoadedFile) {
-            const updatedText = textArea.value;
-            // send updatedText to Flask server
-            console.log('file ' + String(LoadedFile.name) + ' edited');
-            $.ajax({
-                type: 'POST',
-                url: '/update-config',
-                data: { config: String(updatedText) },
-                success: function (response) {
-                    console.log(response)
-                }
-            });
+        if (config_file_path) {
+            const updatedConfig = textArea.value;
+            // send updatedConfig to Flask server
+            console.log('file ' + String(config_file_path) + ' edited');
+            update_config_file(updatedConfig);
         }
     });
 </script>
 
-
-
-<!-- <script>
-    // Get the text editor element
-    const editor = document.getElementById("editor");
-
-    // Get the load button element
-    const loadBtn = document.getElementById("load-btn");
-
-    // Create a variable to store the selected file
-    let fileHandle;
-
-    // Add an event listener to the editor element to detect when the user has made changes
-    editor.addEventListener("input", async () => {
-        // Get the edited text
-        const editedText = editor.innerHTML;
-
-        // Write the edited text to the selected file
-        const writable = await fileHandle.createWritable();
-        await writable.write(editedText);
-        await writable.close();
-    });
-
-    // Add an event listener to the load button element to prompt the user to select a file to load
-    loadBtn.addEventListener("click", async () => {
-        // Prompt the user to select a file to load
-        [fileHandle] = await window.showOpenFilePicker();
-
-        // Get the contents of the selected file
-        const file = await fileHandle.getFile();
-        const contents = await file.text();
-
-        // Set the contents of the editor element to the contents of the selected file
-        editor.innerHTML = contents;
-    });
-</script> -->
-
-<!-- <script>
-    const openFileButton = document.getElementById('open-file');
-    openFileButton.addEventListener('click', function () {
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                const contents = event.target.result;
-                const editor = document.getElementById('editor');
-                editor.value = contents;
-            };
-            reader.readAsText(file);
-        });
-        fileInput.click();
-    });
-</script>
-<script>
-    const saveFileButton = document.getElementById('save-file');
-    saveFileButton.addEventListener('click', function () {
-        const contents = document.getElementById('editor').value;
-        const blob = new Blob([contents], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = 'file.txt';
-        link.href = url;
-        link.click();
-    });
-</script> -->
 
 {% endblock %}
 
