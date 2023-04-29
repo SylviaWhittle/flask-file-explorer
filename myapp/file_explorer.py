@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, url_for, request, jsonify
 from pathlib import Path
 from pprint import pprint
 import json
+import time
 
 bp = Blueprint('file_explorer', __name__)
 
@@ -74,7 +75,6 @@ def explore():
     return render_template('main-page/index.html', current_path=current_path, files=files, directories=directories)
 
 
-
 @bp.route('/get-data', methods=['POST', 'GET'])
 def get_data():
     print('GET-DATA TRIGGERED')
@@ -98,3 +98,44 @@ def get_data():
     print(data)
 
     return jsonify(data)
+
+@bp.route('/load-config', methods=['POST', 'GET'])
+def load_config():
+
+    # get path to config
+
+    # verify config path
+
+    # generate config (if needed)
+
+    # open config file
+
+    # return config file contents
+
+    pass
+
+@bp.route('/update-config', methods=['POST'])
+def update_config():
+
+    # get updated config
+    config = request.form['config']
+    print(f'received config: {config}')
+
+    # open config file
+
+    # clear config file
+
+    # add updated config
+
+    # save config file
+
+    return f'received config: {config}'
+
+@bp.route('/run', methods=['POST', 'GET'])
+def run():
+
+    # check input directory
+
+    # check 
+
+    pass

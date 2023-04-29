@@ -14,7 +14,6 @@
 
         console.log('sending AJAX request. current_path: ' + current_path + ' requested_dir: ' + requested_dir)
 
-
         // send AJAX request to server with the requested information
         $.ajax({
             url: "{{ url_for('file_explorer.get_data') }}",
@@ -36,7 +35,6 @@
             for (let i = 0; i < response.directories.length; i++) {
                 directory = response.directories[i];
                 console.log('creating button for directory: ' + directory);
-                //directories_buttons += "<button class='directory-btn' directory=" + directory + " current_path=" + current_path + ">" + directory + "</button>"
                 let button = $('<button>').addClass('directory-btn').attr('current_path', current_path).attr('directory', directory).text(directory);
                 $('#directory-buttons').append(button)
             }
@@ -74,6 +72,8 @@
     });
 </script>
 
+<h3>file explorer</h3>
+
 current path: {{ current_path }}
 
 <br>
@@ -93,11 +93,114 @@ current path: {{ current_path }}
 
 {% endblock %}
 
-
 {% block right %}
-right content
-{% endblock %}
 
+<h3>config editor</h3>
+
+
+<input type="file" id="file-input" onchange="loadFile(event)">
+<textarea id="text-area"></textarea>
+
+<script>
+    let LoadedFile = null
+
+    function loadFile(event) {
+        const file = event.target.files[0];
+        LoadedFile = file
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById('text-area').value = e.target.result;
+        };
+        reader.readAsText(file);
+    }
+
+    const textArea = document.getElementById('text-area');
+    textArea.addEventListener('input', function () {
+        if (LoadedFile) {
+            const updatedText = textArea.value;
+            // send updatedText to Flask server
+            console.log('file ' + String(LoadedFile.name) + ' edited');
+            $.ajax({
+                type: 'POST',
+                url: '/update-config',
+                data: { config: String(updatedText) },
+                success: function (response) {
+                    console.log(response)
+                }
+            });
+        }
+    });
+</script>
+
+
+
+<!-- <script>
+    // Get the text editor element
+    const editor = document.getElementById("editor");
+
+    // Get the load button element
+    const loadBtn = document.getElementById("load-btn");
+
+    // Create a variable to store the selected file
+    let fileHandle;
+
+    // Add an event listener to the editor element to detect when the user has made changes
+    editor.addEventListener("input", async () => {
+        // Get the edited text
+        const editedText = editor.innerHTML;
+
+        // Write the edited text to the selected file
+        const writable = await fileHandle.createWritable();
+        await writable.write(editedText);
+        await writable.close();
+    });
+
+    // Add an event listener to the load button element to prompt the user to select a file to load
+    loadBtn.addEventListener("click", async () => {
+        // Prompt the user to select a file to load
+        [fileHandle] = await window.showOpenFilePicker();
+
+        // Get the contents of the selected file
+        const file = await fileHandle.getFile();
+        const contents = await file.text();
+
+        // Set the contents of the editor element to the contents of the selected file
+        editor.innerHTML = contents;
+    });
+</script> -->
+
+<!-- <script>
+    const openFileButton = document.getElementById('open-file');
+    openFileButton.addEventListener('click', function () {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const contents = event.target.result;
+                const editor = document.getElementById('editor');
+                editor.value = contents;
+            };
+            reader.readAsText(file);
+        });
+        fileInput.click();
+    });
+</script>
+<script>
+    const saveFileButton = document.getElementById('save-file');
+    saveFileButton.addEventListener('click', function () {
+        const contents = document.getElementById('editor').value;
+        const blob = new Blob([contents], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = 'file.txt';
+        link.href = url;
+        link.click();
+    });
+</script> -->
+
+{% endblock %}
 
 {% block content %}
 content block
