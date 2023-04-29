@@ -45,4 +45,9 @@
     {% block content %}{% endblock %}
 
     <!-- END MAIN CONTENT -->
+    <script>
+        window.onbeforeunload = function () {
+            return "Are you sure you want to reload? If you reload the page, you'll lose where you are and will have to reload directories and configs.";
+        }
+    </script>
 </section>
