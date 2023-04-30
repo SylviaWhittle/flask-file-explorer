@@ -163,11 +163,7 @@
             }).done(function (response) {
                 console.log('successfully received response from render images request');
 
-                for (let i = 0; i < response.length; i++) {
-                    let img = $('<img>');
-                    img.attr('src', 'data:img/jpeg;base64,' + response[i]);
-                    $("#images").append(img);
-                }
+                $("#images").html(response);
 
             }).fail(function () {
                 console.log('failed to get response from render images request')
@@ -374,6 +370,5 @@ current config file:
 
 <h3>output images:</h3>
 <div id="images"></div>
-
 
 {% endblock %}

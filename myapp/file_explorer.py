@@ -182,15 +182,37 @@ def render_images():
     output_path = request.form['output_path']
     output_path = Path(output_path) / "processed"
 
-    images = []
+    named_images = []
 
     for png_file in output_path.glob("./*.png"):
         print(f'encoding image: {png_file}')
         with open(png_file, "rb") as f:
             image_binary = f.read()
-        images.append(base64.b64encode(image_binary).decode('utf-8'))
+        relative_file_name = png_file.relative_to(output_path)
+        named_images.append((relative_file_name, base64.b64encode(image_binary).decode('utf-8')))
 
-    return jsonify(images)
+    html = "<table><tr>"
+    current_parent = ""
+    row_length = 4
+    index = 0
+    for image_path, image in named_images:
+        if index % row_length == 0 and index > 0:
+            html = html + "</tr>"
+            html = html + "<tr>"
+            index = 0
+        if current_parent != image_path.parent:
+            html = html + "</tr><table>"
+            html = html + str(image_path.parent)
+            html = html + "<table><tr>"
+            index = 0
+        current_parent = image_path.parent
+
+        html = html + f"<td><figure><img src='data:image/png;base64,{image}'><figcaption>{image_path.stem}</figcaption></figure></td>"
+        index = index + 1
+    html = html + "</tr>\n"
+    html = html + "</table>\n"
+
+    return html
 
 @bp.route('/run_topostats', methods=['POST', 'GET'])
 def run_topostats():
