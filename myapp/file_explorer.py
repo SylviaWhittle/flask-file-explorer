@@ -80,7 +80,6 @@ def explore():
 
     return render_template('main-page/index.html', current_path=current_path, files=files, yaml_files=yaml_files, directories=directories)
 
-
 @bp.route('/get-data', methods=['POST', 'GET'])
 def get_data():
     print('GET-DATA TRIGGERED')
@@ -105,6 +104,35 @@ def get_data():
     print(data)
 
     return jsonify(data)
+
+@bp.route('/create_directory', methods=['POST'])
+def create_directory():
+    print('CREATE DIRECTORY TRIGGERED')
+
+    current_path = request.form['current_path']
+    current_path = Path(current_path)
+    directory_name = request.form['directory_name']
+
+    (current_path / directory_name).mkdir(exist_ok=True)
+
+    return 'success'
+
+@bp.route('/create_config_file', methods=['POST'])
+def create_config_file():
+    print('CREATE CONFIG FILE TRIGGERED')
+
+    current_path = request.form['current_path']
+    current_path = Path(current_path)
+    config_file_name = request.form['config_file_name']
+    config_path = current_path / config_file_name
+    if not (config_path.suffix == '.yaml' or config_path.suffix == '.yml'):
+        if config_path.suffix != '':
+            return f'cannot create config file with extension: {config_path.suffix}. file extension must be .yml or .yaml.'
+        config_path = config_path.with_suffix('.yaml')
+
+    os.system(f"run_topostats --create-config-file {config_path}")
+
+    return 'success'
 
 @bp.route('/load-config', methods=['POST', 'GET'])
 def load_config():
@@ -148,7 +176,6 @@ def update_config():
     return 'successfully saved config'
 
 
-
 @bp.route('/render_images', methods=['POST'])
 def render_images():
 
@@ -172,8 +199,12 @@ def run_topostats():
     config_file_path = request.form['config_file_path']
     config_file_path = Path(config_file_path)
     print(f'config file: {config_file_path}')
+    input_path = request.form['input_path']
+    input_path = Path(input_path)
+    output_path = request.form['output_path']
+    output_path = Path(output_path)
 
-    os.system(f"run_topostats -c {config_file_path}")
+    os.system(f"run_topostats -c {config_file_path} -b {input_path} -o {output_path}")
 
     print('finished running topostats, returning log file')
 

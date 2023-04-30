@@ -23,16 +23,11 @@
             dataType: "json",
         }).done(function (response) {
             console.log('successfully retrieved data: ' + response);
-
             current_path = response.current_path
-
             set_current_path(current_path);
-
             console.log('directories: ' + response.directories)
+
             $('#directory-buttons').html('')
-            // Add back button
-            let button = $('<button>').addClass('directory-btn').attr('current_path', current_path).attr('directory', '..').text('..');
-            $('#directory-buttons').append(button)
             for (let i = 0; i < response.directories.length; i++) {
                 directory = response.directories[i];
                 console.log('creating button for directory: ' + directory);
@@ -83,6 +78,32 @@
         console.log("setting config file to: " + config_full_path);
         $('#current-config-file').text(config_full_path)
         load_config_file()
+    }
+
+    function create_directory(current_path, directory_name) {
+        $.ajax({
+            url: " {{ url_for('file_explorer.create_directory') }} ",
+            type: 'POST',
+            data: { 'current_path': current_path, 'directory_name': directory_name },
+        }).done(function (response) {
+            console.log('successfully created directory');
+            display_directories(current_path, "");
+        }).fail(function () {
+            console.log('failed to create directory');
+        });
+    }
+
+    function create_config_file(current_path, config_file_name) {
+        $.ajax({
+            url: " {{ url_for('file_explorer.create_config_file') }} ",
+            type: 'POST',
+            data: { 'current_path': current_path, 'config_file_name': config_file_name },
+        }).done(function (response) {
+            console.log('successfully created config file');
+            display_directories(current_path, "");
+        }).fail(function () {
+            console.log('failed to create a config file');
+        });
     }
 
     function load_config_file() {
@@ -171,7 +192,9 @@
     }
 
     $(document).ready(function () {
-        //  Add click event listener to the directory button
+        //  Add click event listener to the directory buttons
+        // This is needed since we can't have simple click event
+        // checkers for dynamically created buttons
         $('#directory-buttons').on('click', 'button', function () {
             // Get the directory from the clicked button
             console.log('button pressed!');
@@ -195,6 +218,41 @@
             set_config_file(current_path, requested_yaml);
         });
 
+        $('#directory-back-btn').click(function () {
+            console.log('back button pressed')
+            let current_path = get_current_path();
+            let requested_dir = '..';
+            display_directories(current_path, requested_dir);
+        });
+
+        $('#directory-create-btn').click(function () {
+            console.log('create directory button press');
+            current_path = get_current_path();
+            directory_name = $('#create-directory-name').val();
+            $('#create-directory-name').val('');
+            console.log('create directory name: ' + directory_name);
+            if (directory_name) {
+                create_directory(current_path, directory_name);
+            }
+            else {
+                alert('A directory name needs to be specified to create a directory');
+            }
+        });
+
+        $('#create-config-file-btn').click(function () {
+            console.log('create config file button press');
+            current_path = get_current_path();
+            config_file_name = $('#create-config-file-name').val();
+            $('#create-config-file-name').val('');
+            console.log('create config file name: ' + config_file_name);
+            if (config_file_name) {
+                create_config_file(current_path, config_file_name);
+            }
+            else {
+                alert('A config file name needs to be specified to create a config file');
+            }
+        })
+
         // Add click event listener to input / output directory buttons
         $('#set-input-directory-btn').click(function () {
             current_path = get_current_path();
@@ -206,18 +264,28 @@
         });
 
         $('#run-topostats-btn').click(function () {
-            console.log('running topostats...');
-            $.ajax({
-                url: "{{ url_for('file_explorer.run_topostats') }}",
-                type: 'POST',
-                data: { 'config_file_path': get_config_path() },
-            }).done(function (response) {
-                console.log('successfully ran topostats!');
-                $('#topostats-latest-log').text(response);
-                display_output_images();
-            }).fail(function () {
-                console.log("run topostats returned with a failure");
-            })
+
+            input_path = get_input_path()
+            output_path = get_output_path()
+            config_path = get_config_path()
+
+            if (input_path && output_path && config_path) {
+                console.log('running topostats...');
+                $.ajax({
+                    url: "{{ url_for('file_explorer.run_topostats') }}",
+                    type: 'POST',
+                    data: { 'config_file_path': config_path, 'input_path': input_path, 'output_path': output_path },
+                }).done(function (response) {
+                    console.log('successfully ran topostats!');
+                    $('#topostats-latest-log').text(response);
+                    display_output_images();
+                }).fail(function () {
+                    console.log("run topostats returned with a failure");
+                })
+            }
+            else {
+                alert("need input, output and config file paths to be set before running topostats");
+            }
         });
 
 
@@ -241,6 +309,14 @@ current path:
 <script>
     display_directories()
 </script>
+
+<div id="directory-management">
+    <button id="directory-back-btn">back</button>
+    <input type='text' id='create-directory-name' size='10'>
+    <button id="directory-create-btn">create directory</button>
+    <input type="text" id="create-config-file-name" size="10">
+    <button id="create-config-file-btn">create config file</button>
+</div>
 
 <div id="directory-buttons">
     directory buttons div
