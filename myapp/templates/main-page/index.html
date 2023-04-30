@@ -126,10 +126,11 @@
         }).always(function () {
             console.log('config update always run')
         });
+
     }
 
     // Render images in output directory
-    setInterval(function () {
+    function display_output_images() {
         output_path = get_output_path();
         $("#images").html("");
         if (output_path) {
@@ -151,7 +152,7 @@
                 console.log('failed to get response from render images request')
             });
         }
-    }, 2000);
+    }
 
     function get_current_path() {
         return $("#current-path").text();
@@ -164,6 +165,9 @@
     }
     function get_input_path() {
         return $("#current-input-path").text()
+    }
+    function get_config_path() {
+        return $("#current-config-file").text()
     }
 
     $(document).ready(function () {
@@ -199,8 +203,22 @@
         $('#set-output-directory-btn').click(function () {
             current_path = get_current_path();
             $("#current-output-path").text(current_path);
-        })
+        });
 
+        $('#run-topostats-btn').click(function () {
+            console.log('running topostats...');
+            $.ajax({
+                url: "{{ url_for('file_explorer.run_topostats') }}",
+                type: 'POST',
+                data: { 'config_file_path': get_config_path() },
+            }).done(function (response) {
+                console.log('successfully ran topostats!');
+                $('#topostats-latest-log').text(response);
+                display_output_images();
+            }).fail(function () {
+                console.log("run topostats returned with a failure");
+            })
+        });
 
 
     });
@@ -256,11 +274,6 @@ current config file:
 <div id="current-config-file"></div>
 
 <textarea id="text-area"></textarea>
-
-<br>
-
-<button id="run-topostats">run topostats</button>
-
 <script>
     const textArea = document.getElementById('text-area');
     textArea.addEventListener('input', function () {
@@ -273,6 +286,15 @@ current config file:
         }
     });
 </script>
+
+<br>
+
+<button id="run-topostats-btn">run topostats</button>
+
+<br>
+
+<h3>topostats latest log:</h3>
+<textarea readonly id="topostats-latest-log">topostats has not been run yet</textarea>
 
 <h3>output images:</h3>
 <div id="images"></div>

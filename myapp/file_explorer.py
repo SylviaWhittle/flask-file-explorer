@@ -5,6 +5,7 @@ from pprint import pprint
 import json
 import time
 import base64
+import re
 
 bp = Blueprint('file_explorer', __name__)
 
@@ -146,20 +147,13 @@ def update_config():
 
     return 'successfully saved config'
 
-@bp.route('/run', methods=['POST', 'GET'])
-def run():
 
-    # check input directory
-
-    # check 
-
-    pass
 
 @bp.route('/render_images', methods=['POST'])
 def render_images():
 
     output_path = request.form['output_path']
-    output_path = Path(output_path)
+    output_path = Path(output_path) / "processed"
 
     images = []
 
@@ -170,3 +164,24 @@ def render_images():
         images.append(base64.b64encode(image_binary).decode('utf-8'))
 
     return jsonify(images)
+
+@bp.route('/run_topostats', methods=['POST', 'GET'])
+def run_topostats():
+
+    print("RUNNING TOPOSTATS")
+    config_file_path = request.form['config_file_path']
+    config_file_path = Path(config_file_path)
+    print(f'config file: {config_file_path}')
+
+    os.system(f"run_topostats -c {config_file_path}")
+
+    print('finished running topostats, returning log file')
+
+    # Get the latest log and return it
+    log_files = [f for f in os.listdir() if re.search(r'\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}', f)]
+    if len(log_files) == 0:
+        return "no output log file found"
+    latest_log = max(log_files, key=lambda x: re.search(r'\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}', x).group())
+    with open(latest_log, 'r') as f:
+        log = f.read()
+    return log
