@@ -6,6 +6,7 @@ import json
 import time
 import base64
 import re
+from threading import Thread
 
 bp = Blueprint('file_explorer', __name__)
 
@@ -218,7 +219,30 @@ def render_images():
         'image_list': images_with_captions
     })
 
+    print(f'final dictionary:')
+    print(directories_with_image_lists)
     return jsonify(directories_with_image_lists)
+
+def async_run_topostats(callback, config_file_path, input_path, output_path):
+    print('running topostats asynchronously')
+    os.system(f"run_topostats -c {config_file_path} -b {input_path} -o {output_path}")
+    callback()
+
+def fetch_latest_log_file():
+    # Get the latest log and return it
+    log_files = [f for f in os.listdir() if re.search(r'\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}', f)]
+    if len(log_files) == 0:
+        return "no output log file found"
+    latest_log = max(log_files, key=lambda x: re.search(r'\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}', x).group())
+    with open(latest_log, 'r') as f:
+        log = f.read()
+    return log
+
+def topostats_finished():
+    print('finished running topostats, returning log file')
+    log = fetch_latest_log_file()
+
+
 
 @bp.route('/run_topostats', methods=['POST', 'GET'])
 def run_topostats():
@@ -232,15 +256,12 @@ def run_topostats():
     output_path = request.form['output_path']
     output_path = Path(output_path)
 
-    os.system(f"run_topostats -c {config_file_path} -b {input_path} -o {output_path}")
+    thread = Thread(target=async_run_topostats, args=(topostats_finished, config_file_path, input_path, output_path))
+    thread.start()
 
-    print('finished running topostats, returning log file')
+    
 
-    # Get the latest log and return it
-    log_files = [f for f in os.listdir() if re.search(r'\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}', f)]
-    if len(log_files) == 0:
-        return "no output log file found"
-    latest_log = max(log_files, key=lambda x: re.search(r'\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}', x).group())
-    with open(latest_log, 'r') as f:
-        log = f.read()
-    return log
+
+
+
+
