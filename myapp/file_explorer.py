@@ -180,12 +180,15 @@ def update_config():
 @bp.route('/render_images', methods=['POST'])
 def render_images():
 
+    print('TRIGGERED RENDER IMAGES')
+
     output_path = request.form['output_path']
     output_path = Path(output_path) / "processed"
+    print(f'output_path: {output_path}')
 
     named_images = []
 
-    for png_file in output_path.glob("./*.png"):
+    for png_file in output_path.glob("**/*.png"):
         print(f'encoding image: {png_file}')
         with open(png_file, "rb") as f:
             image_binary = f.read()
