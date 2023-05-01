@@ -2,6 +2,20 @@
 
 {% block header %}
 <h1>{% block title %} header (from index) {% endblock %}</h1>
+
+<button onclick="updateCSS()">Update CSS</button>
+
+<script>
+    function updateCSS() {
+        // Get the current version number from the CSS file path
+        let css = document.querySelector('#my-css');
+        let version = parseInt(css.href.split('=')[1]);
+
+        // Increment the version number and update the CSS file path
+        version++;
+        css.href = `../static/style.css?v=${version}`;
+    }
+</script>
 {% endblock %}
 
 
@@ -162,8 +176,33 @@
                 data: { 'output_path': get_output_path() },
             }).done(function (response) {
                 console.log('successfully received response from render images request');
+                console.log(response)
 
-                $("#images").html(response);
+                $("#image-grid-container").html('');
+                for (let i = 0; i < response.length; i++) {
+                    console.log('iterating through response. i: ' + String(i));
+                    console.log('response[i]: ' + String(response[i]));
+                    let image_grid = $("<div>").addClass('image-grid');
+
+                    let directory = response[i].directory;
+                    image_grid.append($("<h2>").text("path: " + directory))
+                    let images_with_captions = response[i].image_list;
+
+                    for (let j = 0; j < images_with_captions.length; j++) {
+                        let image_grid_item = $("<div>").addClass('image-grid-item')
+                        let figure = $("<figure>")
+                        let image = images_with_captions[j].image
+                        let caption = images_with_captions[j].caption
+                        let img_element = $("<img>").attr('src', 'data:image/png;base64,' + image)
+                        let figcaption = $("<figcaption>").text(caption)
+                        figure.append(img_element)
+                        figure.append(figcaption)
+                        image_grid.append(figure);
+                    }
+
+                    $("#image-grid-container").append(image_grid);
+
+                }
 
             }).fail(function () {
                 console.log('failed to get response from render images request')
@@ -369,6 +408,6 @@ current config file:
 <textarea readonly id="topostats-latest-log">topostats has not been run yet</textarea>
 
 <h3>output images:</h3>
-<div id="images"></div>
+<div id="image-grid-container" class="image-grid-container"></div>
 
 {% endblock %}

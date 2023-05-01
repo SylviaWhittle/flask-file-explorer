@@ -191,28 +191,34 @@ def render_images():
         relative_file_name = png_file.relative_to(output_path)
         named_images.append((relative_file_name, base64.b64encode(image_binary).decode('utf-8')))
 
-    html = "<table><tr>"
+
+    images_with_captions = []
+    directories_with_image_lists = []
     current_parent = ""
-    row_length = 4
-    index = 0
+    # Iterate through the images
     for image_path, image in named_images:
-        if index % row_length == 0 and index > 0:
-            html = html + "</tr>"
-            html = html + "<tr>"
-            index = 0
-        if current_parent != image_path.parent:
-            html = html + "</tr><table>"
-            html = html + str(image_path.parent)
-            html = html + "<table><tr>"
-            index = 0
+        # If new parent
+        if current_parent != "" and current_parent != image_path.parent:
+            # Add current image + caption list to the main dictionary
+            directories_with_image_lists.append({
+                'directory': str(current_parent),
+                'image_list': images_with_captions
+            })
+
+        images_with_captions.append(
+            {
+                'image': image,
+                'caption': str(image_path.stem)
+            }
+        )
         current_parent = image_path.parent
+    
+    directories_with_image_lists.append({
+        'directory': str(current_parent),
+        'image_list': images_with_captions
+    })
 
-        html = html + f"<td><figure><img src='data:image/png;base64,{image}'><figcaption>{image_path.stem}</figcaption></figure></td>"
-        index = index + 1
-    html = html + "</tr>\n"
-    html = html + "</table>\n"
-
-    return html
+    return jsonify(directories_with_image_lists)
 
 @bp.route('/run_topostats', methods=['POST', 'GET'])
 def run_topostats():

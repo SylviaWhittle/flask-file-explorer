@@ -1,0 +1,17 @@
+.image-grid-container {
+    display: grid;
+    background-color: #1900ff;
+}
+
+.image-grid {
+    display: flex;
+    flex-wrap: 
+    grid-template-columns: repeat(auto-fit, minmax(0.1vw, 1fr));
+    grid-gap: 10px;
+    background-color: #815f5f;
+}
+
+.image-grid-item {
+    width: 0.2vw;
+    background-color: rgb(6, 112, 211);
+}
