@@ -1,5 +1,7 @@
 import os
 from flask import Flask
+from flask_socketio import SocketIO, emit
+import file_explorer
 
 # application factory function
 def create_app(test_config=None):
@@ -18,7 +20,20 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import file_explorer
     app.register_blueprint(file_explorer.bp)
 
-    return app
+    # Initialise socketio
+    socketio = SocketIO(app)
+
+    # Define event handlers
+    @socketio.on('connnect')
+    def handle_connect():
+        print('client connected')
+
+
+    return app, socketio
+
+app, socketio = create_app()
+
+if __name__ == "__main__":
+    socketio.run(app)

@@ -1,5 +1,6 @@
 import os
 from flask import Blueprint, render_template, url_for, request, jsonify, Response, make_response
+from flask_socketio import SocketIO, emit
 from pathlib import Path
 from pprint import pprint
 import json
@@ -9,17 +10,6 @@ import re
 from threading import Thread
 
 bp = Blueprint('file_explorer', __name__)
-
-# @bp.route('/')
-# def index():
-#     # get file structure
-
-#     directories = ['Documents', 'Images', 'Videos', 'Desktop']
-
-#     files = ['file1.txt', 'file2.txt', 'image1.png']
-
-#     return render_template('main-page/index.html', info='info!', files = files, directories = directories)
-
 
 def list_directory(requested_dir: str, current_path: str):
 
@@ -244,7 +234,8 @@ def fetch_latest_log_file():
 def topostats_finished():
     print('finished running topostats, returning log file')
     log = fetch_latest_log_file()
-
+    from __init__ import socketio
+    socketio.emit('topostats finished', log)
 
 
 @bp.route('/run_topostats', methods=['POST', 'GET'])
@@ -261,6 +252,8 @@ def run_topostats():
 
     thread = Thread(target=async_run_topostats, args=(topostats_finished, config_file_path, input_path, output_path))
     thread.start()
+
+    return 'topostats started!'
 
     
 

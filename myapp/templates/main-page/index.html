@@ -332,6 +332,15 @@
 
     });
 
+    // Listen for messages from the server
+    const socket = io();
+    socket.on('topostats finished', (data) => {
+        // handle the data
+        console.log('topostats finished!');
+        console.log('log:');
+        console.log(data);
+    });
+
 </script>
 
 
