@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h1>{% block title %} header (from index) {% endblock %}</h1>
+<h1>{% block title %} topostats {% endblock %}</h1>
 
 <button onclick="updateCSS()">Update CSS</button>
 
@@ -46,7 +46,8 @@
                 directory = response.directories[i];
                 console.log('creating button for directory: ' + directory);
                 let button = $('<button>').addClass('directory-btn').attr('current_path', current_path).attr('directory', directory).text(directory);
-                $('#directory-buttons').append(button)
+                let li = $('<li>').append(button);
+                $('#directory-buttons').append(li);
             }
 
             $("#file-list").html('')
@@ -167,51 +168,56 @@
     // Render images in output directory
     function display_output_images() {
         output_path = get_output_path();
-        $("#images").html("");
         if (output_path) {
-            console.log('sending render images request to server')
-            $.ajax({
-                url: "{{ url_for('file_explorer.render_images') }}",
-                type: 'POST',
-                data: { 'output_path': get_output_path() },
-            }).done(function (response) {
-                console.log('successfully received response from render images request');
-                console.log(response)
+            $("#images").html("");
+            if (output_path) {
+                console.log('sending render images request to server')
+                $.ajax({
+                    url: "{{ url_for('file_explorer.render_images') }}",
+                    type: 'POST',
+                    data: { 'output_path': get_output_path() },
+                }).done(function (response) {
+                    console.log('successfully received response from render images request');
+                    console.log(response)
 
-                $("#image-grid-container-container").html('');
-                for (let i = 0; i < response.length; i++) {
-                    console.log('iterating through response. i: ' + String(i));
-                    console.log('response[i]: ' + String(response[i]));
+                    $("#image-grid-container-container").html('');
+                    for (let i = 0; i < response.length; i++) {
+                        console.log('iterating through response. i: ' + String(i));
+                        console.log('response[i]: ' + String(response[i]));
 
-                    let directory = response[i].directory;
-                    console.log('directory: ' + directory);
-                    $("#image-grid-container-container").append($("<h2>").text("path: " + directory));
-                    $("#image-grid-container-container").append($("<br>"));
-                    let images_with_captions = response[i].image_list;
+                        let directory = response[i].directory;
+                        console.log('directory: ' + directory);
+                        $("#image-grid-container-container").append($("<h2>").text("path: " + directory));
+                        $("#image-grid-container-container").append($("<br>"));
+                        let images_with_captions = response[i].image_list;
 
-                    console.log('new image grid')
-                    let image_grid = $("<div>").addClass('image-grid-container');
-                    for (let j = 0; j < images_with_captions.length; j++) {
-                        let image_grid_item = $("<div>").addClass('image-grid-item')
-                        let figure = $("<figure>")
-                        let image = images_with_captions[j].image
-                        let caption = images_with_captions[j].caption
-                        console.log('new image: ' + caption)
-                        let img_element = $("<img>").addClass('summary-image').attr('src', 'data:image/png;base64,' + image)
-                        let figcaption = $("<figcaption>").text(caption)
-                        figure.append(img_element)
-                        figure.append(figcaption)
-                        image_grid_item.append(figure);
-                        image_grid.append(image_grid_item);
+                        console.log('new image grid')
+                        let image_grid = $("<div>").addClass('image-grid-container');
+                        for (let j = 0; j < images_with_captions.length; j++) {
+                            let image_grid_item = $("<div>").addClass('image-grid-item')
+                            let figure = $("<figure>")
+                            let image = images_with_captions[j].image
+                            let caption = images_with_captions[j].caption
+                            console.log('new image: ' + caption)
+                            let img_element = $("<img>").addClass('summary-image').attr('src', 'data:image/png;base64,' + image)
+                            let figcaption = $("<figcaption>").text(caption)
+                            figure.append(img_element)
+                            figure.append(figcaption)
+                            image_grid_item.append(figure);
+                            image_grid.append(image_grid_item);
+                        }
+
+                        $("#image-grid-container-container").append(image_grid);
+
                     }
 
-                    $("#image-grid-container-container").append(image_grid);
-
-                }
-
-            }).fail(function () {
-                console.log('failed to get response from render images request')
-            });
+                }).fail(function () {
+                    console.log('failed to get response from render images request')
+                });
+            }
+        }
+        else {
+            alert('an output directory must be set to search for output images');
         }
     }
 
@@ -219,10 +225,14 @@
         return $("#current-path").text();
     }
     function set_current_path(current_path) {
-        return $("#current-path").text(current_path);
+        $("#current-path").text(current_path);
     }
     function get_output_path() {
         return $("#current-output-path").text()
+    }
+    function set_output_path(path) {
+        $("#current-output-path").text(path);
+        display_output_images()
     }
     function get_input_path() {
         return $("#current-input-path").text()
@@ -300,7 +310,7 @@
         });
         $('#set-output-directory-btn').click(function () {
             current_path = get_current_path();
-            $("#current-output-path").text(current_path);
+            set_output_path(current_path);
         });
 
         $('#run-topostats-btn').click(function () {
@@ -317,9 +327,7 @@
                     timeout: 1000000,
                     data: { 'config_file_path': config_path, 'input_path': input_path, 'output_path': output_path },
                 }).done(function (response) {
-                    console.log('successfully ran topostats!');
-                    $('#topostats-latest-log').text(response);
-                    display_output_images();
+                    console.log('started running topostats');
                 }).fail(function () {
                     console.log("run topostats returned with a failure");
                 })
@@ -329,70 +337,83 @@
             }
         });
 
+        $("#refresh-image-output-btn").click(function () {
+            display_output_images();
+        });
+
 
     });
 
+    // Connect to socket
+    console.log('connecting to socket')
+    let socket = io.connect('http://' + document.domain + ":" + location.port);
+
     // Listen for messages from the server
-    const socket = io();
     socket.on('topostats finished', (data) => {
         // handle the data
         console.log('topostats finished!');
         console.log('log:');
         console.log(data);
+        $("#topostats-latest-log").text(data);
+        display_output_images();
     });
 
+
+
 </script>
 
+<div class="file-explorer">
+    <h2>File Explorer</h2>
 
-<h3>file explorer</h3>
 
-current path:
-<div id="current-path"></div>
+    <div class="directory-box">
+        <h3 class="directory-header">Current Path:</h3>
+        <div id="current-path" class="path"></div>
+    </div>
+    <br>
 
-<br>
+    <button id="set-input-directory-btn">Set as input directory</button>
+    <button id="set-output-directory-btn">Set as output directory</button>
 
-<button id="set-input-directory-btn">Set as input directory</button>
-<button id="set-output-directory-btn">Set as output directory</button>
+    <br>
 
-<br>
+    <script>
+        display_directories()
+    </script>
 
-<script>
-    display_directories()
-</script>
+    <div id="directory-management">
+        <button id="directory-back-btn">back</button>
+        <input type='text' id='create-directory-name' size='10'>
+        <button id="directory-create-btn">create directory</button>
+        <input type="text" id="create-config-file-name" size="10">
+        <button id="create-config-file-btn">create config file</button>
+    </div>
 
-<div id="directory-management">
-    <button id="directory-back-btn">back</button>
-    <input type='text' id='create-directory-name' size='10'>
-    <button id="directory-create-btn">create directory</button>
-    <input type="text" id="create-config-file-name" size="10">
-    <button id="create-config-file-btn">create config file</button>
+    <div>
+        <ul id="directory-buttons" class="directory-buttons">
+
+        </ul>
+    </div>
+    <div>
+        <ul id="file-list" class="file-list">
+
+        </ul>
+    </div>
+    <div>
+        <ul id="yaml-buttons" class="yaml-buttons">
+
+        </ul>
+    </div>
 </div>
-
-<div id="directory-buttons">
-    directory buttons div
-</div>
-<div>
-    <ul id="file-list">
-
-    </ul>
-</div>
-<div>
-    <ul id="yaml-buttons">
-
-    </ul>
-</div>
-
 {% endblock %}
 
 {% block right %}
 
-<h3>input path</h3>
-path:
-<div id="current-input-path"></div>
+<h3 class="directory-header">input path</h3>
+<div id="current-input-path" class="path"></div>
 
-<h3>output path</h3>
-path:
-<div id="current-output-path"></div>
+<h3 class="directory-header">output path</h3>
+<div id="current-output-path" class="path"></div>
 
 <h3>config editor</h3>
 
@@ -417,12 +438,13 @@ current config file:
 
 <button id="run-topostats-btn">run topostats</button>
 
+<button id="refresh-image-output-btn">Force refresh output images</button>
+
 <br>
 
 <h3>topostats latest log:</h3>
 <textarea readonly id="topostats-latest-log">topostats has not been run yet</textarea>
 
-<img src="{{ url_for('static', filename='shark.jpg') }}">
 <h3>output images:</h3>
 <div id="image-grid-container-container" class="image-grid-container-container">
 
