@@ -1,7 +1,91 @@
+:root {
+    --code-font: "Source Code Pro", monospace;
+    --dim: #aaa;
+    --bright: #ddd;
+    --brigher: #fff;
+    --colour1: #d19999;
+    --colour12: #ffcbcb;
+    --colour2: #d1b499;
+    --colour3: #d1cb99;
+    --colour4: #a4d199;
+    --colour5: #99cdd1;
+    --colour6: #bb99d1;
+    --colour7: #d199bc;
+}
+
+h1 {
+    font-size: 36px;
+    text-align: center;
+    letter-spacing: 3px;
+    color: #f3f3f3;
+    text-shadow: 0 0 5px #ffffff;
+}
+
+h2 {
+    color: var(--bright);
+}
+
 body {
-    background: rgb(19, 19, 19);
+    background: rgb(29, 29, 29);
+    color: #a3a3a3;
+}
+
+button {
+    top: 50%;
+    background-color: #222222;
     color: #fff;
-    font-family: 'Noto Sans', sans-serif;
+    border: 1px solid;
+    margin: 5px;
+    box-shadow: 0px 0px 2px 2px rgb(0, 0, 0);
+}
+
+button:hover {
+    box-shadow: 0 0 1px 1px #fff;
+}
+
+ul {
+    list-style-image: url('./general-file-icon.png')
+}
+
+.path {
+    color: var(--bright);
+    border: 1px solid;
+}
+
+.path:empty:before {
+    content: "\200B";
+}
+
+.directory-buttons {
+    border: 1px solid;
+    border-color: var(--dim);
+    list-style-image: url('./folder-icon.png')
+}
+
+.directory-buttons button {
+    display: block;
+    color: var(--colour12);
+    border-color: var(--colour1);
+}
+
+.directory-buttons button:hover {
+    color: var(--colour12);
+    box-shadow: 0 0 1px 1px var(--colour1);
+    transform: 1.1;
+}
+
+.yaml-buttons {
+    color: var(--colour3);
+    list-style-image: url('./yaml-file-icon.png');
+}
+
+.yaml-buttons button {
+    color: var(--colour3);
+
+}
+
+.yaml-buttons button:hover {
+    box-shadow: 0 0 1px 1px var(--colour3);
 }
 
 .summary-image {
