@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h1>{% block title %} topostats {% endblock %}</h1>
+<h1>{% block title %} topostats unofficial front-end{% endblock %}</h1>
 
 <button onclick="updateCSS()">Update CSS</button>
 
@@ -19,7 +19,7 @@
 {% endblock %}
 
 
-{% block left %}
+{% block content %}
 <script>
     function display_directories(current_path, requested_dir) {
 
@@ -136,7 +136,7 @@
             console.log('config: ' + config)
 
             // Load the config into the text edit field
-            $('#text-area').val(config);
+            $('#current-config-file').val(config);
 
         }).fail(function () {
             console.log('failed to retrieve config from server')
@@ -362,92 +362,102 @@
 
 </script>
 
-<div class="file-explorer">
-    <h2>File Explorer</h2>
 
 
-    <div class="directory-box">
-        <h3 class="directory-header">Current Path:</h3>
-        <div id="current-path" class="path"></div>
+<div class="content-block-container">
+
+
+    <div class="content-block" id="file-explorer">
+        <h2>File Explorer</h2>
+
+
+        <div class="directory-box">
+            <h3 class="directory-header">Current Path:</h3>
+            <div id="current-path" class="path"></div>
+        </div>
+        <br>
+
+        <button id="set-input-directory-btn">Set as input directory</button>
+        <button id="set-output-directory-btn">Set as output directory</button>
+
+        <br>
+
+        <script>
+            display_directories()
+        </script>
+
+        <div id="directory-management" class="directory-management">
+            <button id="directory-back-btn">back</button>
+            <input type='text' id='create-directory-name' size='10'>
+            <button id="directory-create-btn">create directory</button>
+            <input type="text" id="create-config-file-name" size="10">
+            <button id="create-config-file-btn">create config file</button>
+        </div>
+
+        <div>
+            <ul id="directory-buttons" class="directory-buttons">
+
+            </ul>
+        </div>
+        <div>
+            <ul id="file-list" class="file-list">
+
+            </ul>
+        </div>
+        <div>
+            <ul id="yaml-buttons" class="yaml-buttons">
+
+            </ul>
+        </div>
+
     </div>
-    <br>
 
-    <button id="set-input-directory-btn">Set as input directory</button>
-    <button id="set-output-directory-btn">Set as output directory</button>
 
-    <br>
+    <div class="content-block">
+        <h2>Config editor</h2>
 
-    <script>
-        display_directories()
-    </script>
+        <h3>Current config file:</h3>
 
-    <div id="directory-management">
-        <button id="directory-back-btn">back</button>
-        <input type='text' id='create-directory-name' size='10'>
-        <button id="directory-create-btn">create directory</button>
-        <input type="text" id="create-config-file-name" size="10">
-        <button id="create-config-file-btn">create config file</button>
+        <textarea id="current-config-file" spellcheck="false"></textarea>
+        <script>
+            const textArea = document.getElementById('current-config-file');
+            textArea.addEventListener('input', function () {
+                let config_file_path = $("#current-config-file").text();
+                if (config_file_path) {
+                    const updatedConfig = textArea.value;
+                    // send updatedConfig to Flask server
+                    console.log('file ' + String(config_file_path) + ' edited');
+                    update_config_file(updatedConfig);
+                }
+            });
+        </script>
     </div>
 
-    <div>
-        <ul id="directory-buttons" class="directory-buttons">
+    <div class="content-block">
 
-        </ul>
-    </div>
-    <div>
-        <ul id="file-list" class="file-list">
+        <h2>Run TopoStats</h2>
 
-        </ul>
-    </div>
-    <div>
-        <ul id="yaml-buttons" class="yaml-buttons">
+        <h3 class="directory-header">Input path</h3>
+        <div id="current-input-path" class="path"></div>
 
-        </ul>
+        <h3 class="directory-header">Output path</h3>
+        <div id="current-output-path" class="path"></div>
+
+        <button id="run-topostats-btn">run topostats</button>
+
+        <button id="refresh-image-output-btn">Force refresh output images</button>
+
+        <h3>Latest TopoStats log</h3>
+        <textarea readonly id="topostats-latest-log" spellcheck="false">topostats has not been run yet</textarea>
+
     </div>
+
+
+    <div class="content-block">
+        <h2>Output images</h2>
+        <div id="image-grid-container-container" class="image-grid-container-container">
+        </div>
+    </div>
+
 </div>
-{% endblock %}
-
-{% block right %}
-
-<h3 class="directory-header">input path</h3>
-<div id="current-input-path" class="path"></div>
-
-<h3 class="directory-header">output path</h3>
-<div id="current-output-path" class="path"></div>
-
-<h3>config editor</h3>
-
-current config file:
-<div id="current-config-file"></div>
-
-<textarea id="text-area"></textarea>
-<script>
-    const textArea = document.getElementById('text-area');
-    textArea.addEventListener('input', function () {
-        let config_file_path = $("#current-config-file").text();
-        if (config_file_path) {
-            const updatedConfig = textArea.value;
-            // send updatedConfig to Flask server
-            console.log('file ' + String(config_file_path) + ' edited');
-            update_config_file(updatedConfig);
-        }
-    });
-</script>
-
-<br>
-
-<button id="run-topostats-btn">run topostats</button>
-
-<button id="refresh-image-output-btn">Force refresh output images</button>
-
-<br>
-
-<h3>topostats latest log:</h3>
-<textarea readonly id="topostats-latest-log">topostats has not been run yet</textarea>
-
-<h3>output images:</h3>
-<div id="image-grid-container-container" class="image-grid-container-container">
-
-</div>
-
 {% endblock %}
