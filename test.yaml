@@ -1,6 +1,0 @@
-this:
-  is:
-    a:
-      yaml: "file"
-where:
-  there: "is a file"
