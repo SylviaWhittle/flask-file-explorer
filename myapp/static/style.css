@@ -46,6 +46,7 @@ h1 {
     letter-spacing: 3px;
     color: #f3f3f3;
     text-shadow: 0 0 5px #ffffff;
+    margin: auto auto auto auto;
 }
 
 h2 {
@@ -113,6 +114,15 @@ input {
 
 figure {
     margin: 0;
+}
+
+.made-with {
+    float: left;
+}
+
+.glow {
+    color: var(--brighter);
+    text-shadow: 0 0 3px #ffffff;
 }
 
 .content-block-container {
