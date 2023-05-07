@@ -136,7 +136,7 @@
             console.log('config: ' + config)
 
             // Load the config into the text edit field
-            $('#current-config-file').val(config);
+            $('#config-file-editor').val(config);
 
         }).fail(function () {
             console.log('failed to retrieve config from server')
@@ -358,7 +358,10 @@
         display_output_images();
     });
 
-
+    socket.on('config file created', (data) => {
+        console.log('config file created');
+        display_directories(get_current_path(), "");
+    });
 
 </script>
 
@@ -418,12 +421,13 @@
         <h2>Config editor</h2>
 
         <h3>Current config file:</h3>
+        <div class="path" id="current-config-file"></div>
 
-        <textarea id="current-config-file" spellcheck="false"></textarea>
+        <textarea id="config-file-editor" spellcheck="false"></textarea>
         <script>
-            const textArea = document.getElementById('current-config-file');
+            const textArea = document.getElementById('config-file-editor');
             textArea.addEventListener('input', function () {
-                let config_file_path = $("#current-config-file").text();
+                let config_file_path = $("#config-file-editor").text();
                 if (config_file_path) {
                     const updatedConfig = textArea.value;
                     // send updatedConfig to Flask server

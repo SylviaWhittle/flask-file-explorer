@@ -112,6 +112,15 @@ def create_directory():
 
     return 'success'
 
+def async_create_config_file(callback, config_path):
+    print('running topostats asynchronously')
+    os.system(f"run_topostats --create-config-file {config_path}")
+    callback()
+
+def create_config_file_finished():
+    print('finished creating config file')
+    socketio.emit('config file created')
+
 @bp.route('/create_config_file', methods=['POST'])
 def create_config_file():
     print('CREATE CONFIG FILE TRIGGERED')
@@ -125,9 +134,12 @@ def create_config_file():
             return f'cannot create config file with extension: {config_path.suffix}. file extension must be .yml or .yaml.'
         config_path = config_path.with_suffix('.yaml')
 
-    os.system(f"run_topostats --create-config-file {config_path}")
+    # os.system(f"run_topostats --create-config-file {config_path}")
 
-    return 'success'
+    thread = Thread(target=async_create_config_file, args=(create_config_file_finished, config_path))
+    thread.start()
+
+    return 'started making a config file'
 
 @bp.route('/load-config', methods=['POST', 'GET'])
 def load_config():
