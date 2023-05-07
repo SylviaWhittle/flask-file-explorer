@@ -378,6 +378,15 @@
         display_directories(get_current_path(), "");
     });
 
+    socket.on('topostats error', (data) => {
+        console.log('TOPOSTATS THREW AN ERROR:')
+        console.log(data);
+        alert("TOPOSTATS THREW AN ERROR: " + data);
+        set_topostats_status("TopoStats threw an error")
+        $("#topostats-status").css({ "color": "red" });
+        $("#topostats-latest-log").text(data);
+    })
+
 </script>
 
 

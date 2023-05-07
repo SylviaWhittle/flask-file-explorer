@@ -231,9 +231,15 @@ def render_images():
     return jsonify(directories_with_image_lists)
 
 def async_run_topostats(callback, config_file_path, input_path, output_path):
-    print('running topostats asynchronously')
-    os.system(f"run_topostats -c {config_file_path} -b {input_path} -o {output_path}")
-    callback()
+    try:
+        print('running topostats asynchronously')
+        os.system(f"run_topostats -c {config_file_path} -b {input_path} -o {output_path}")
+        print("TOPOSTATS FINISHED, CALLING CALLBACK FUNCTION")
+        callback()
+        print("FINISHED CALLING CALLBACK FUNCTION")
+    except Exception as e:
+        print(f'an error occured running topostats: {e}')
+        socketio.emit('topostats error', e)
 
 def fetch_latest_log_file():
     # Get the latest log and return it
