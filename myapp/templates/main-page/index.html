@@ -368,6 +368,8 @@
         display_output_images();
         set_topostats_status("TopoStats Finished");
         $("#topostats-status").css({ "color": "#87e67b" })
+        let notification_sound = new Audio("../../static/notification.mp3");
+        notification_sound.play();
     });
 
     socket.on('config file created', (data) => {
