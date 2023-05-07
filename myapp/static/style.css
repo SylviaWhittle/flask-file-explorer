@@ -71,10 +71,11 @@ button {
     color: var(--darker);
     /* border: 1px solid; */
     border-top: 0px;
-    border-left: 2px solid var(--dim);
+    /* border-left: 2px solid var(--dim);
     border-top: 2px solid var(--dim);
     border-bottom: 2px solid var(--dark);
-    border-right: 2px solid var(--dark);
+    border-right: 2px solid var(--dark); */
+    border: none;
     margin: 5px;
     box-shadow: 0px 0px 2px 2px var(--darker);
     border-radius: 3px;
@@ -143,10 +144,6 @@ figure {
     content: "\200B";
 }
 
-.file-explorer-output {
-    /* border: 2px solid var(--bright); */
-}
-
 .update-css-btn {
     background-color: var(--colour-dev-0);
     box-shadow: none;
@@ -201,6 +198,14 @@ figure {
 
 .topostats-interactions button:hover {
     background-color: var(--colour-d4);
+}
+
+.topostats-status-container {
+    display: flex;
+}
+
+.topostats-status-inner {
+    margin: 0px 10px 0px 0px;
 }
 
 .image-output-header-section {

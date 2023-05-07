@@ -240,6 +240,12 @@
     function get_config_path() {
         return $("#current-config-file").text()
     }
+    function set_topostats_status(status) {
+        $("#topostats-status").text(status)
+    }
+    function get_topostats_status() {
+        return $("#topostats-status").text();
+    }
 
     $(document).ready(function () {
         //  Add click event listener to the directory buttons
@@ -328,7 +334,11 @@
                     data: { 'config_file_path': config_path, 'input_path': input_path, 'output_path': output_path },
                 }).done(function (response) {
                     console.log('started running topostats');
+                    set_topostats_status("Running topostats...");
+                    $("#topostats-status").css({ "color": "yellow" })
                 }).fail(function () {
+                    set_topostats_status("Failed to start running topostats. Check javascript and flask console logs.");
+                    $("#topostats-status").css({ "color": "red" })
                     console.log("run topostats returned with a failure");
                 })
             }
@@ -356,6 +366,8 @@
         console.log(data);
         $("#topostats-latest-log").text(data);
         display_output_images();
+        set_topostats_status("TopoStats Finished");
+        $("#topostats-status").css({ "color": "#87e67b" })
     });
 
     socket.on('config file created', (data) => {
@@ -427,7 +439,7 @@
         <script>
             const textArea = document.getElementById('config-file-editor');
             textArea.addEventListener('input', function () {
-                let config_file_path = $("#config-file-editor").text();
+                let config_file_path = $("#current-config-file").text();
                 if (config_file_path) {
                     const updatedConfig = textArea.value;
                     // send updatedConfig to Flask server
@@ -451,6 +463,12 @@
         <div class="topostats-interactions">
             <button id="run-topostats-btn">Run TopoStats</button>
         </div>
+
+        <div class="topostats-status-container">
+            <div class="topostats-status-inner"><b>TopoStats status:</b></div>
+            <div class="topostats-status-inner" id="topostats-status">Not yet run</div>
+        </div>
+
 
         <h3>Latest TopoStats log</h3>
         <textarea readonly id="topostats-latest-log" spellcheck="false">topostats has not been run yet</textarea>
