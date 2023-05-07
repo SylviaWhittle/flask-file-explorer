@@ -481,10 +481,33 @@
 
 <div class="content-block">
     <div class="image-output-header-section">
-        <h2>Output images</h2>
+
         <button id="refresh-image-output-btn">Force refresh output images</button>
+
+        <h2>Output images</h2>
+
+        <div class="slider-container">
+            <h3>Image size</h3>
+            <input type="range" min="100" max="800" value="200" class="slider" id="image-size-slider"
+                onchange="update_image_size(this.value);">
+            <div class="image-size-display" id="image-size-display"></div>
+        </div>
+
+        <script>
+            $("#image-size-display").text($("#image-size-slider").val());
+            function update_image_size(size) {
+                console.log("image slider value changed: " + size);
+                $("#image-size-display").text(size);
+                $(".image-grid-container").each(function (index, element) {
+                    element.style.gridTemplateColumns = `repeat(auto-fit, minmax(${size}px, ${size}px))`;
+                });
+
+            }
+        </script>
     </div>
+
     <div id="image-grid-container-container" class="image-grid-container-container">
     </div>
 </div>
+
 {% endblock %}

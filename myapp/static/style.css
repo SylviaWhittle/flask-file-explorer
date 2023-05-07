@@ -201,7 +201,7 @@ figure {
 }
 
 .topostats-status-container {
-    display: flex;
+    justify-content: space-evenly;
 }
 
 .topostats-status-inner {
@@ -210,13 +210,29 @@ figure {
 
 .image-output-header-section {
     display: flex;
-    justify-content: center;
-    position: relative;
+    flex-direction: row;
+    justify-content: space-around;
 }
 
+.slider-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.image-size-display {
+    padding: 3px 10px 5px 10px;
+    color: var(--bright);
+    background-color: var(--output-colour);
+    border-radius: 5px;
+    margin: auto 0px auto 10px;
+}
+
+.image-output-header-section h2 {}
+
 .image-output-header-section button {
-    position: absolute;
-    left: 0;
+    /* padding: 0px 0px 0px 0px; */
+    margin: auto 0px auto 0px;
     background-color: var(--colour-b2);
 }
 
@@ -233,7 +249,7 @@ figure {
     color: #ffffff;
     box-shadow: rgba(3, 8, 20, 0.1) 0px 0.15rem 0.5rem, rgba(2, 8, 20, 0.1) 0px 0.075rem 0.175rem;
     border-radius: 4px;
-    transition: all 500ms;
+    transition: all 100ms;
 
     /* background-size: cover; */
     /* background-position: center;
@@ -258,8 +274,7 @@ figure {
 
     /* 1fr means 1 fractional unit, ie one part of the available space. */
     /* auto-fit calculates the number of rows and columns on the fly */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 300px));
-
+    grid-template-columns: repeat(auto-fit, minmax(200px, 200px))
 }
 
 #topostats-latest-log {
