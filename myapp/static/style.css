@@ -8,8 +8,8 @@
     --darker: #111;
     --background-col: #212331;
     --content-block-col: #2a2d3d;
-    --output-colour: #1f2127;
-    --input-colour: #5b6079;
+    --output-colour: #5b6079;
+    --input-colour: #1f2127;
     --input-text-colour: #ddd;
     --colour1: #d19999;
     --colour12: #ffcbcb;
@@ -70,7 +70,11 @@ button {
     background-color: var(--colour-b6);
     color: var(--darker);
     /* border: 1px solid; */
-    border: none;
+    border-top: 0px;
+    border-left: 2px solid var(--dim);
+    border-top: 2px solid var(--dim);
+    border-bottom: 2px solid var(--dark);
+    border-right: 2px solid var(--dark);
     margin: 5px;
     box-shadow: 0px 0px 2px 2px var(--darker);
     border-radius: 3px;
@@ -102,7 +106,8 @@ input {
     background-color: var(--input-colour);
     color: var(--input-text-colour);
     border-radius: 5px;
-    margin: 5px 0px 5px 5px;
+    margin: 5px 0px 5px 10px;
+    border: 1px solid var(--dim);
 }
 
 figure {
@@ -145,10 +150,15 @@ figure {
 .update-css-btn {
     background-color: var(--colour-dev-0);
     box-shadow: none;
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
 }
 
 .update-css-btn:hover {
     background-color: var(--colour-dev-0);
+
 }
 
 .directory-buttons {
@@ -234,7 +244,7 @@ figure {
 
 .image-grid-item:hover {
     box-shadow: rgba(2, 8, 20, 0.1) 0px, 0.35em, 1.175em, rgba(2, 8, 20, 0.08) 0px, 1.175em, 0.5em;
-    transform: translateY(-3px) scale(1.1);
+    transform: translateY(-3px) scale(2);
 }
 
 .image-grid-container {
@@ -254,8 +264,11 @@ figure {
     min-width: 100%;
 }
 
-#current-config-file {
+#config-file-editor {
+    margin: 10px 0px 0px 0px;
     color: var(--colour-b3);
-    width: 100%;
     min-width: 100%;
+    width: 100%;
+    bottom: 0;
+    resize: both;
 }
