@@ -3,7 +3,7 @@
 {% block header %}
 <h1>{% block title %} topostats unofficial front-end{% endblock %}</h1>
 
-<button onclick="updateCSS()">Update CSS</button>
+<button class="update-css-btn" onclick="updateCSS()">Update CSS</button>
 
 <script>
     function updateCSS() {
@@ -394,22 +394,23 @@
             <button id="create-config-file-btn">create config file</button>
         </div>
 
-        <div>
-            <ul id="directory-buttons" class="directory-buttons">
+        <div class="file-explorer-output">
+            <div>
+                <ul id="directory-buttons" class="directory-buttons">
 
-            </ul>
+                </ul>
+            </div>
+            <div>
+                <ul id="file-list" class="file-list">
+
+                </ul>
+            </div>
+            <div>
+                <ul id="yaml-buttons" class="yaml-buttons">
+
+                </ul>
+            </div>
         </div>
-        <div>
-            <ul id="file-list" class="file-list">
-
-            </ul>
-        </div>
-        <div>
-            <ul id="yaml-buttons" class="yaml-buttons">
-
-            </ul>
-        </div>
-
     </div>
 
 
@@ -443,21 +444,23 @@
         <h3 class="directory-header">Output path</h3>
         <div id="current-output-path" class="path"></div>
 
-        <button id="run-topostats-btn">run topostats</button>
-
-        <button id="refresh-image-output-btn">Force refresh output images</button>
+        <div class="topostats-interactions">
+            <button id="run-topostats-btn">Run TopoStats</button>
+        </div>
 
         <h3>Latest TopoStats log</h3>
         <textarea readonly id="topostats-latest-log" spellcheck="false">topostats has not been run yet</textarea>
 
     </div>
 
+</div>
 
-    <div class="content-block">
+<div class="content-block">
+    <div class="image-output-header-section">
         <h2>Output images</h2>
-        <div id="image-grid-container-container" class="image-grid-container-container">
-        </div>
+        <button id="refresh-image-output-btn">Force refresh output images</button>
     </div>
-
+    <div id="image-grid-container-container" class="image-grid-container-container">
+    </div>
 </div>
 {% endblock %}

@@ -1,8 +1,16 @@
 :root {
+    --font-size: 12px;
     --code-font: "Source Code Pro", monospace;
     --dim: #aaa;
     --bright: #ddd;
-    --brigher: #fff;
+    --brighter: #fff;
+    --dark: #444;
+    --darker: #111;
+    --background-col: #212331;
+    --content-block-col: #2a2d3d;
+    --output-colour: #1f2127;
+    --input-colour: #5b6079;
+    --input-text-colour: #ddd;
     --colour1: #d19999;
     --colour12: #ffcbcb;
     --colour2: #d1b499;
@@ -11,6 +19,25 @@
     --colour5: #99cdd1;
     --colour6: #bb99d1;
     --colour7: #d199bc;
+    --colour-b0: #cccccc;
+    --colour-b1: #ff8989;
+    --colour-b2: #ffbe89;
+    --colour-b3: #d9db6b;
+    --colour-b4: #87e67b;
+    --colour-b5: #89fff9;
+    --colour-b6: #8b94e2;
+    --colour-b7: #bc89ff;
+    --colour-b8: #e97fe0;
+    --colour-d0: #555555;
+    --colour-d1: #804444;
+    --colour-d2: #926d4f;
+    --colour-d3: #7e8040;
+    --colour-d4: #487942;
+    --colour-d5: #45807d;
+    --colour-d6: #3a3e66;
+    --colour-d7: #563d75;
+    --colour-d8: #63365f;
+    --colour-dev-0: #2c2d35;
 }
 
 h1 {
@@ -23,92 +50,186 @@ h1 {
 
 h2 {
     color: var(--bright);
+    text-align: center;
+    margin: 2px 10px 10px 10px;
+}
+
+h3 {
+    margin: 10px 0px 5px 0px;
 }
 
 body {
-    background: rgb(29, 29, 29);
+    font-size: var(--font-size);
+    background: var(--background-col);
     color: #a3a3a3;
 }
 
 button {
-    top: 50%;
-    background-color: #222222;
-    color: #fff;
-    border: 1px solid;
+    font-size: var(--font-size);
+    /* top: 50%; */
+    background-color: var(--colour-b6);
+    color: var(--darker);
+    /* border: 1px solid; */
+    border: none;
     margin: 5px;
-    box-shadow: 0px 0px 2px 2px rgb(0, 0, 0);
+    box-shadow: 0px 0px 2px 2px var(--darker);
+    border-radius: 3px;
+    transition-duration: 0.2s;
 }
 
 button:hover {
-    box-shadow: 0 0 1px 1px #fff;
+    background-color: var(--colour-d6);
+    color: var(--brighter);
 }
 
 ul {
     list-style-image: url('./general-file-icon.png')
 }
 
+textarea {
+    font-size: var(--font-size);
+    background-color: var(--input-colour);
+    color: var(--input-text-colour);
+    border-radius: 5px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background-color: rgb(94, 94, 94);
+    outline: 1px solid rgb(70, 70, 70);
+}
+
+input {
+    background-color: var(--input-colour);
+    color: var(--input-text-colour);
+    border-radius: 5px;
+    margin: 5px 0px 5px 5px;
+}
+
+figure {
+    margin: 0;
+}
+
+.content-block-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.content-block {
+    background: var(--content-block-col);
+    padding: 10px;
+    margin: 10px;
+    border-radius: 10px;
+    box-shadow: 4px 4px #1d1e29;
+}
+
+.directory-management {
+    display: flex;
+}
+
 .path {
+    padding: 3px 10px 5px 10px;
     color: var(--bright);
-    border: 1px solid;
+    /* border: 1px solid; */
+    background-color: var(--output-colour);
+    border-radius: 5px;
 }
 
 .path:empty:before {
     content: "\200B";
 }
 
+.file-explorer-output {
+    /* border: 2px solid var(--bright); */
+}
+
+.update-css-btn {
+    background-color: var(--colour-dev-0);
+    box-shadow: none;
+}
+
+.update-css-btn:hover {
+    background-color: var(--colour-dev-0);
+}
+
 .directory-buttons {
-    border: 1px solid;
-    border-color: var(--dim);
     list-style-image: url('./folder-icon.png')
 }
 
 .directory-buttons button {
-    display: block;
-    color: var(--colour12);
-    border-color: var(--colour1);
+    display: flex;
+    background-color: var(--colour-b1);
 }
 
 .directory-buttons button:hover {
-    color: var(--colour12);
-    box-shadow: 0 0 1px 1px var(--colour1);
-    transform: 1.1;
+    background-color: var(--colour-d1);
+}
+
+.yaml-list-item {
+    color: var(--colour-b3);
 }
 
 .yaml-buttons {
-    color: var(--colour3);
     list-style-image: url('./yaml-file-icon.png');
 }
 
 .yaml-buttons button {
-    color: var(--colour3);
-
+    background-color: var(--colour-b3);
 }
 
 .yaml-buttons button:hover {
-    box-shadow: 0 0 1px 1px var(--colour3);
+    background-color: var(--colour-d3);
 }
 
-.summary-image {
-    max-width: 100%;
+.topostats-interactions button {
+    background-color: var(--colour-b4);
+    text-align: center;
+    margin: 30px 0px 20px 0px;
+    width: 100%;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.topostats-interactions button:hover {
+    background-color: var(--colour-d4);
+}
+
+.image-output-header-section {
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.image-output-header-section button {
+    position: absolute;
+    left: 0;
+    background-color: var(--colour-b2);
+}
+
+.image-output-header-section button:hover {
+    background-color: var(--colour-d2);
 }
 
 .image-grid-item {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    margin: 0;
+    padding: 0;
+    /* justify-content: center;
+    align-items: center; */
     background: #353535;
     color: #ffffff;
     box-shadow: rgba(3, 8, 20, 0.1) 0px 0.15rem 0.5rem, rgba(2, 8, 20, 0.1) 0px 0.075rem 0.175rem;
-    height: 100%;
-    width: 100%;
     border-radius: 4px;
     transition: all 500ms;
-    overflow: hidden;
 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    /* background-size: cover; */
+    /* background-position: center;
+    background-repeat: no-repeat; */
+}
+
+.image-grid-item img {
+    display: block;
+    margin: 0;
+    padding: 0;
+    width: 100%;
 }
 
 .image-grid-item:hover {
@@ -118,10 +239,23 @@ ul {
 
 .image-grid-container {
     display: grid;
-    gap: 1rem;
+    gap: 10px;
 
     /* 1fr means 1 fractional unit, ie one part of the available space. */
     /* auto-fit calculates the number of rows and columns on the fly */
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 300px));
 
+}
+
+#topostats-latest-log {
+    background-color: var(--output-colour);
+    color: var(--dim);
+    width: 100%;
+    min-width: 100%;
+}
+
+#current-config-file {
+    color: var(--colour-b3);
+    width: 100%;
+    min-width: 100%;
 }
